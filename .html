@@ -1,336 +1,633 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyDrugs — Fast</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; overflow-x: hidden; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0a0a0f; }
-        ::-webkit-scrollbar-thumb { background: #00ffc8; border-radius: 3px; }
-        a { text-decoration: none; color: inherit; }
-        .header { position: fixed; top: 0; width: 100%; z-index: 100; background: rgba(10,10,15,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,255,200,0.15); padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; }
-        .logo { font-family: 'JetBrains Mono',monospace; font-weight: 900; font-size: 1.8rem; letter-spacing: -2px; background: linear-gradient(135deg,#00ffc8,#00ccff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; }
-        .logo span { font-family: 'Inter',sans-serif; font-weight: 400; font-size: 0.8rem; -webkit-text-fill-color: #666; letter-spacing: 0; }
-        .nav-links { display: flex; gap: 28px; align-items: center; }
-        .nav-links a { color: #888; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; transition: color 0.3s; cursor: pointer; padding: 4px 0; border-bottom: 2px solid transparent; }
-        .nav-links a:hover, .nav-links a.active { color: #00ffc8; border-bottom-color: #00ffc8; }
-        .cart-btn { background: transparent; border: 1.5px solid #00ffc8; color: #00ffc8; padding: 8px 18px; border-radius: 6px; font-family: 'JetBrains Mono',monospace; font-weight: 700; font-size: 0.75rem; cursor: pointer; transition: all 0.3s; position: relative; display: flex; align-items: center; gap: 8px; }
-        .cart-btn:hover { background: rgba(0,255,200,0.1); box-shadow: 0 0 20px rgba(0,255,200,0.15); }
-        .cart-count { background: #ff0040; color: #fff; font-size: 0.6rem; font-weight: 700; min-width: 18px; height: 18px; border-radius: 50%; display: none; align-items: center; justify-content: center; padding: 0 4px; }
-        .hero { margin-top: 70px; padding: 60px 40px 30px; text-align: center; position: relative; overflow: hidden; }
-        .hero::before { content: ''; position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 700px; height: 500px; background: radial-gradient(ellipse,rgba(0,255,200,0.06),transparent 70%); pointer-events: none; }
-        .hero h1 { font-size: 3.8rem; font-weight: 900; letter-spacing: -3px; background: linear-gradient(135deg,#fff 20%,#00ffc8 80%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; line-height: 1.1; }
-        .hero p { color: #666; font-size: 1.1rem; max-width: 480px; margin: 0 auto 16px; }
-        .trust-row { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 0.7rem; font-family: 'JetBrains Mono',monospace; color: #555; }
-        .trust-row span { padding: 6px 16px; border: 1px solid rgba(0,255,200,0.1); border-radius: 20px; color: #00ffc8; }
-        .categories { display: flex; justify-content: center; gap: 10px; padding: 20px 40px; flex-wrap: wrap; }
-        .cat-btn { padding: 8px 22px; border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; background: transparent; color: #777; font-family: 'Inter',sans-serif; font-size: 0.75rem; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
-        .cat-btn:hover, .cat-btn.active { border-color: #00ffc8; color: #00ffc8; background: rgba(0,255,200,0.05); }
-        .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; padding: 10px 40px 50px; max-width: 1200px; margin: 0 auto; }
-        .product-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 22px; transition: all 0.35s cubic-bezier(0.25,0.46,0.45,0.94); position: relative; overflow: hidden; }
-        .product-card:hover { border-color: rgba(0,255,200,0.25); transform: translateY(-5px); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .product-card .badge { position: absolute; top: 14px; right: 14px; background: #00ffc8; color: #0a0a0f; font-size: 0.55rem; font-weight: 800; padding: 3px 10px; border-radius: 8px; text-transform: uppercase; letter-spacing: 1px; }
-        .product-card .emoji { font-size: 2.8rem; margin-bottom: 10px; display: block; }
-        .product-card h3 { font-family: 'JetBrains Mono',monospace; font-size: 1rem; margin-bottom: 4px; color: #fff; }
-        .product-card .rating { font-size: 0.7rem; color: #555; margin-bottom: 8px; }
-        .product-card .rating .stars { color: #ffd700; letter-spacing: 1px; }
-        .product-card .desc { font-size: 0.78rem; color: #666; margin-bottom: 14px; line-height: 1.5; min-height: 36px; }
-        .product-card .meta { display: flex; justify-content: space-between; align-items: center; }
-        .product-card .price { font-family: 'JetBrains Mono',monospace; font-size: 1.4rem; font-weight: 700; color: #00ffc8; }
-        .product-card .price small { font-size: 0.6rem; color: #555; font-weight: 400; }
-        .product-card .buy-btn { padding: 8px 20px; background: transparent; border: 1.5px solid #00ffc8; color: #00ffc8; border-radius: 6px; font-family: 'JetBrains Mono',monospace; font-weight: 700; font-size: 0.7rem; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
-        .product-card .buy-btn:hover { background: #00ffc8; color: #0a0a0f; box-shadow: 0 0 20px rgba(0,255,200,0.2); }
-        .section-title { max-width: 1200px; margin: 30px auto 5px; padding: 0 40px; font-family: 'JetBrains Mono',monospace; font-size: 1.1rem; color: #555; letter-spacing: 2px; text-transform: uppercase; }
-        .footer { text-align: center; padding: 30px 20px; border-top: 1px solid rgba(255,255,255,0.04); color: #444; font-size: 0.7rem; font-family: 'JetBrains Mono',monospace; }
-        .footer .links { display: flex; justify-content: center; gap: 24px; margin-bottom: 12px; }
-        .footer .links a { color: #555; transition: color 0.3s; font-size: 0.7rem; }
-        .footer .links a:hover { color: #00ffc8; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); z-index: 200; justify-content: center; align-items: center; }
-        .modal.active { display: flex; }
-        .modal-content { background: #12121c; border: 1px solid rgba(0,255,200,0.15); border-radius: 18px; padding: 36px; max-width: 440px; width: 92%; position: relative; animation: modalIn 0.25s ease; }
-        @keyframes modalIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal-content h2 { font-family: 'JetBrains Mono',monospace; color: #00ffc8; font-size: 1.3rem; margin-bottom: 18px; }
-        .modal-content .close { position: absolute; top: 14px; right: 18px; color: #555; font-size: 1.4rem; cursor: pointer; background: none; border: none; transition: color 0.3s; line-height: 1; }
-        .modal-content .close:hover { color: #fff; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04); gap: 10px; }
-        .cart-item .name { font-size: 0.85rem; flex: 1; }
-        .cart-item .qty { display: flex; gap: 8px; align-items: center; }
-        .cart-item .qty button { background: rgba(255,255,255,0.08); border: none; color: #ccc; width: 26px; height: 26px; border-radius: 5px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-        .cart-item .qty button:hover { background: #00ffc8; color: #0a0a0f; }
-        .cart-item .qty span { min-width: 20px; text-align: center; font-family: 'JetBrains Mono',monospace; font-size: 0.85rem; }
-        .cart-item .item-price { font-family: 'JetBrains Mono',monospace; color: #00ffc8; font-size: 0.85rem; min-width: 60px; text-align: right; }
-        .cart-total { display: flex; justify-content: space-between; padding: 16px 0 8px; font-family: 'JetBrains Mono',monospace; font-size: 1.2rem; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 8px; }
-        .cart-total .total-price { color: #00ffc8; }
-        .checkout-btn { width: 100%; padding: 14px; background: #00ffc8; border: none; color: #0a0a0f; font-family: 'JetBrains Mono',monospace; font-weight: 800; font-size: 0.95rem; border-radius: 8px; cursor: pointer; transition: all 0.3s; margin-top: 14px; text-transform: uppercase; letter-spacing: 1px; }
-        .checkout-btn:hover { box-shadow: 0 0 35px rgba(0,255,200,0.3); transform: translateY(-1px); }
-        .empty-cart { color: #555; text-align: center; padding: 40px 20px; font-size: 0.85rem; }
-        .empty-cart .big-emoji { font-size: 3rem; display: block; margin-bottom: 12px; }
-        .toast { position: fixed; bottom: 30px; right: 30px; background: #12121c; border: 1px solid #00ffc8; color: #00ffc8; padding: 14px 24px; border-radius: 10px; font-family: 'JetBrains Mono',monospace; font-size: 0.78rem; opacity: 0; transform: translateY(20px); transition: all 0.35s cubic-bezier(0.25,0.46,0.45,0.94); z-index: 300; pointer-events: none; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-        .toast.show { opacity: 1; transform: translateY(0); }
-        .payment-modal .methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0; }
-        .payment-modal .methods button { padding: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; color: #ccc; font-family: 'Inter',sans-serif; font-size: 0.8rem; cursor: pointer; transition: all 0.3s; }
-        .payment-modal .methods button:hover { border-color: #00ffc8; color: #00ffc8; background: rgba(0,255,200,0.05); }
-        .payment-modal .input-group { margin: 14px 0; }
-        .payment-modal .input-group label { display: block; font-size: 0.7rem; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-        .payment-modal .input-group input { width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #fff; font-family: 'JetBrains Mono',monospace; font-size: 0.85rem; outline: none; transition: border 0.3s; }
-        .payment-modal .input-group input:focus { border-color: #00ffc8; }
-        .payment-modal .pix-display { background: rgba(0,255,200,0.04); border: 1px dashed rgba(0,255,200,0.2); border-radius: 10px; padding: 20px; text-align: center; margin: 14px 0; }
-        .payment-modal .pix-display .code { font-family: 'JetBrains Mono',monospace; font-size: 0.7rem; color: #00ffc8; word-break: break-all; margin-top: 8px; }
-        .payment-modal .success { text-align: center; padding: 30px 0; }
-        .payment-modal .success .big { font-size: 4rem; display: block; margin-bottom: 10px; }
-        .payment-modal .success h3 { color: #00ffc8; font-family: 'JetBrains Mono',monospace; margin-bottom: 6px; }
-        .payment-modal .success p { color: #555; font-size: 0.8rem; }
-        @media (max-width: 768px) { .header { padding: 12px 18px; } .logo { font-size: 1.3rem; } .hero h1 { font-size: 2rem; } .hero { padding: 50px 20px 20px; } .products { padding: 10px 18px 40px; gap: 14px; grid-template-columns: 1fr; } .nav-links { gap: 12px; } .nav-links a { font-size: 0.65rem; letter-spacing: 0.5px; } .cart-btn { font-size: 0.65rem; padding: 6px 14px; } .modal-content { padding: 24px; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyDrugs — o mercado mais confiável da darknet</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+--bg:#0a0a0a;
+--bg2:#111;
+--bg3:#161616;
+--bg4:#1c1c1c;
+--brd:#1f1f1f;
+--green:#00e676;
+--greend:#00c853;
+--green2:#009624;
+--text:#f5f5f5;
+--text2:#888;
+--text3:#555;
+--star:#ffd600;
+--danger:#ff1744;
+--font:'Inter',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--greend);border-radius:3px;}
+
+.header{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--brd);}
+.header-inner{max-width:1400px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:64px;}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--green),var(--green2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:#000;letter-spacing:-1px;}
+.logo-text{font-weight:800;font-size:20px;color:var(--text);letter-spacing:-0.5px;}
+.logo-text span{color:var(--green);}
+.logo-domain{font-size:11px;color:var(--text3);margin-top:2px;}
+
+.nav{display:flex;align-items:center;gap:32px;}
+.nav a{color:var(--text2);text-decoration:none;font-size:13px;font-weight:500;transition:color 0.2s;letter-spacing:0.3px;}
+.nav a:hover{color:var(--green);}
+.nav a.active{color:var(--green);}
+
+.header-right{display:flex;align-items:center;gap:16px;}
+.cart-btn{position:relative;background:none;border:none;color:var(--text2);cursor:pointer;font-size:20px;padding:8px;transition:color 0.2s;}
+.cart-btn:hover{color:var(--green);}
+.cart-count{position:absolute;top:0;right:0;background:var(--danger);color:#fff;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.balance{display:flex;align-items:center;gap:6px;background:var(--bg3);padding:6px 14px;border-radius:20px;border:1px solid var(--brd);font-size:13px;font-weight:600;color:var(--green);}
+.balance svg{width:14px;height:14px;}
+
+/* HERO */
+.hero{max-width:1400px;margin:0 auto;padding:120px 24px 60px;display:flex;align-items:center;justify-content:space-between;gap:40px;}
+.hero-left{flex:1;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.2);padding:6px 14px;border-radius:20px;font-size:12px;color:var(--green);font-weight:500;margin-bottom:20px;}
+.hero-badge svg{width:14px;height:14px;}
+.hero h1{font-size:52px;font-weight:900;line-height:1.1;margin-bottom:16px;letter-spacing:-1.5px;}
+.hero h1 span{color:var(--green);}
+.hero p{font-size:18px;color:var(--text2);max-width:520px;line-height:1.7;margin-bottom:28px;}
+.hero-stats{display:flex;gap:32px;}
+.hero-stat{text-align:center;}
+.hero-stat-num{font-size:28px;font-weight:800;color:var(--green);}
+.hero-stat-label{font-size:12px;color:var(--text3);margin-top:2px;}
+
+.hero-right{flex-shrink:0;width:320px;background:var(--bg3);border:1px solid var(--brd);border-radius:16px;padding:24px;text-align:center;}
+.hero-right-icon{font-size:48px;margin-bottom:12px;}
+.hero-right h3{font-size:16px;font-weight:700;margin-bottom:4px;}
+.hero-right p{font-size:12px;color:var(--text2);margin-bottom:16px;}
+.trust-badge{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--green);font-weight:600;margin-bottom:8px;}
+.trust-line{display:flex;justify-content:center;gap:12px;font-size:11px;color:var(--text3);}
+
+/* TRUST ROW */
+.trust-row{max-width:1400px;margin:0 auto;padding:0 24px 40px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.trust-item{background:var(--bg3);border:1px solid var(--brd);border-radius:12px;padding:20px;text-align:center;transition:border-color 0.3s;}
+.trust-item:hover{border-color:rgba(0,230,118,0.3);}
+.trust-item-icon{font-size:28px;margin-bottom:8px;}
+.trust-item h4{font-size:14px;font-weight:700;}
+.trust-item p{font-size:11px;color:var(--text3);margin-top:2px;}
+
+/* FILTROS */
+.filter-bar{max-width:1400px;margin:0 auto;padding:0 24px 20px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.filter-bar-label{font-size:12px;color:var(--text3);font-weight:500;margin-right:8px;}
+.filter-btn{background:var(--bg3);border:1px solid var(--brd);color:var(--text2);padding:8px 18px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;}
+.filter-btn:hover{background:var(--bg4);color:var(--text);}
+.filter-btn.active{background:var(--green);color:#000;border-color:var(--green);font-weight:700;}
+
+/* PRODUTOS GRID */
+.products-section{max-width:1400px;margin:0 auto;padding:0 24px 60px;}
+.products-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+.products-header h2{font-size:22px;font-weight:700;}
+.products-header span{font-size:13px;color:var(--text3);}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+
+.product-card{background:var(--bg3);border:1px solid var(--brd);border-radius:14px;padding:20px;transition:all 0.3s;position:relative;overflow:hidden;}
+.product-card:hover{border-color:rgba(0,230,118,0.3);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.3);}
+.product-badge{position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;padding:4px 10px;border-radius:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.badge-popular{background:rgba(0,230,118,0.15);color:var(--green);border:1px solid rgba(0,230,118,0.3);}
+.badge-new{background:rgba(0,229,255,0.15);color:var(--verified);border:1px solid rgba(0,229,255,0.3);}
+.badge-limited{background:rgba(255,17,68,0.15);color:var(--danger);border:1px solid rgba(255,17,68,0.3);}
+.badge-bestseller{background:rgba(255,145,0,0.15);color:var(--warning);border:1px solid rgba(255,145,0,0.3);}
+
+.product-icon{font-size:40px;margin-bottom:12px;}
+.product-name{font-size:17px;font-weight:700;margin-bottom:4px;}
+.product-desc{font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5;}
+.product-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.product-rating{display:flex;align-items:center;gap:4px;}
+.stars{color:var(--star);font-size:13px;letter-spacing:1px;}
+.rating-num{font-size:12px;color:var(--text2);font-weight:600;}
+.reviews-count{font-size:11px;color:var(--text3);}
+.product-sales{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px;}
+.product-price-row{display:flex;align-items:center;justify-content:space-between;}
+.product-price{font-size:22px;font-weight:800;color:var(--green);}
+.product-price span{font-size:13px;font-weight:400;color:var(--text3);}
+.add-cart{background:var(--green);color:#000;border:none;padding:8px 16px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;transition:all 0.2s;}
+.add-cart:hover{background:var(--greend);transform:scale(1.02);}
+
+/* AVALIAÇÕES / COMENTÁRIOS */
+.reviews-section{max-width:1400px;margin:0 auto;padding:0 24px 60px;}
+.reviews-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;}
+.reviews-summary{display:flex;gap:32px;align-items:center;}
+.reviews-avg{text-align:center;}
+.reviews-avg-num{font-size:48px;font-weight:900;color:var(--green);line-height:1;}
+.reviews-avg-stars{color:var(--star);font-size:18px;margin:4px 0;}
+.reviews-avg-total{font-size:12px;color:var(--text3);}
+.reviews-bars{flex:1;max-width:300px;}
+.review-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.review-bar-row span{font-size:11px;color:var(--text2);width:25px;}
+.review-bar-bg{flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;}
+.review-bar-fill{height:100%;background:var(--star);border-radius:3px;}
+
+.reviews-list{display:grid;gap:12px;margin-top:20px;}
+.review-card{background:var(--bg3);border:1px solid var(--brd);border-radius:12px;padding:16px;display:flex;gap:14px;}
+.review-avatar{width:40px;height:40px;border-radius:50%;background:var(--bg4);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--green);}
+.review-content{flex:1;}
+.review-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.review-user{font-weight:600;font-size:14px;}
+.review-user span{font-size:11px;color:var(--text3);font-weight:400;}
+.review-stars{color:var(--star);font-size:12px;}
+.review-text{font-size:13px;color:var(--text2);line-height:1.6;}
+.review-verified{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--verified);margin-top:6px;}
+
+/* CART MODAL */
+.cart-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:2000;display:none;backdrop-filter:blur(4px);}
+.cart-overlay.open{display:block;}
+.cart-modal{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100vw;background:var(--bg2);border-left:1px solid var(--brd);z-index:2001;transform:translateX(100%);transition:transform 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;}
+.cart-modal.open{transform:translateX(0);}
+.cart-modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid var(--brd);}
+.cart-modal-header h3{font-size:18px;font-weight:700;}
+.cart-close{background:none;border:none;color:var(--text2);font-size:24px;cursor:pointer;padding:4px;}
+.cart-close:hover{color:var(--text);}
+.cart-items{flex:1;overflow-y:auto;padding:16px 24px;}
+.cart-empty{text-align:center;padding:60px 0;color:var(--text3);}
+.cart-empty-icon{font-size:48px;margin-bottom:16px;}
+.cart-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--brd);}
+.cart-item-icon{font-size:28px;}
+.cart-item-info{flex:1;}
+.cart-item-name{font-weight:600;font-size:14px;}
+.cart-item-price{font-size:13px;color:var(--green);font-weight:600;}
+.cart-item-qty{display:flex;align-items:center;gap:8px;}
+.cart-item-qty button{background:var(--bg3);border:1px solid var(--brd);color:var(--text);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.2s;}
+.cart-item-qty button:hover{background:var(--bg4);border-color:var(--green);}
+.cart-item-qty span{font-size:14px;font-weight:600;width:24px;text-align:center;}
+.cart-item-remove{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:4px;}
+.cart-item-remove:hover{color:var(--danger);}
+
+.cart-footer{border-top:1px solid var(--brd);padding:20px 24px;}
+.cart-total{display:flex;justify-content:space-between;font-size:18px;font-weight:700;margin-bottom:16px;}
+.cart-total span:last-child{color:var(--green);}
+.checkout-btn{width:100%;padding:14px;background:var(--green);color:#000;border:none;border-radius:10px;font-weight:800;font-size:16px;cursor:pointer;transition:all 0.2s;}
+.checkout-btn:hover{background:var(--greend);}
+.checkout-btn:disabled{opacity:0.3;cursor:not-allowed;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg3);border:1px solid var(--green);border-radius:12px;padding:14px 20px;display:flex;align-items:center;gap:10px;z-index:3000;transform:translateY(120px);opacity:0;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);max-width:360px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast-icon{font-size:20px;}
+.toast-text{font-size:13px;font-weight:500;}
+.toast-text span{color:var(--green);}
+
+/* FOOTER */
+.footer{max-width:1400px;margin:0 auto;padding:40px 24px;border-top:1px solid var(--brd);display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;}
+.footer-brand{font-size:16px;font-weight:700;margin-bottom:8px;}
+.footer-brand span{color:var(--green);}
+.footer p{font-size:12px;color:var(--text3);line-height:1.7;}
+.footer h4{font-size:12px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.footer a{display:block;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:8px;transition:color 0.2s;}
+.footer a:hover{color:var(--green);}
+.footer-bottom{max-width:1400px;margin:0 auto;padding:20px 24px;border-top:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text3);}
+.footer-bottom-links{display:flex;gap:16px;}
+.footer-bottom-links a{color:var(--text3);text-decoration:none;}
+.footer-bottom-links a:hover{color:var(--green);}
+
+@media(max-width:768px){
+.hero{flex-direction:column;padding:100px 16px 40px;}
+.hero h1{font-size:32px;}
+.hero-right{width:100%;}
+.hero-stats{gap:16px;}
+.hero-stat-num{font-size:20px;}
+.trust-row{grid-template-columns:repeat(2,1fr);}
+.products-grid{grid-template-columns:1fr;}
+.cart-modal{width:100%;}
+.reviews-summary{flex-direction:column;align-items:flex-start;}
+.footer{grid-template-columns:1fr 1fr;}
+.header-inner{padding:0 16px;}
+.nav{display:none;}
+}
+</style>
 </head>
 <body>
 
-<div class="header">
-    <div class="logo" onclick="location.reload()">MyDrugs<span>.fast</span></div>
-    <div class="nav-links">
-        <a class="active" onclick="switchTab('all')">Produtos</a>
-        <a onclick="switchTab('destaque')">Destaque</a>
-        <a onclick="switchTab('novos')">Novos</a>
-        <button class="cart-btn" onclick="openCart()">🛒<span>Carrinho</span><span class="cart-count" id="cartCount">0</span></button>
+<!-- HEADER -->
+<header class="header" id="header">
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <div class="logo-icon">MD</div>
+      <div>
+        <div class="logo-text">My<span>Drugs</span></div>
+        <div class="logo-domain">mydrugs.to</div>
+      </div>
+    </a>
+    <nav class="nav">
+      <a href="#" class="active">Produtos</a>
+      <a href="#">Destaque</a>
+      <a href="#">Novos</a>
+      <a href="#">FAQ</a>
+      <a href="#">Suporte</a>
+    </nav>
+    <div class="header-right">
+      <div class="balance">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M16 10l-4-4-4 4"/></svg>
+        BTC 0.00
+      </div>
+      <button class="cart-btn" id="cartBtn">
+        🛒
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
     </div>
-</div>
+  </div>
+</header>
 
-<div class="hero">
-    <h1>Escolha. Compre. Receba.</h1>
-    <p>Marketplace discreto • Entrega garantida • Pagamento anônimo</p>
-    <div class="trust-row">
-        <span>🔒 256-bit AES</span>
-        <span>🕒 Entrega 24h</span>
-        <span>⭐ 4.8/5 (2.4k)</span>
-        <span>🌐 Tor Compatível</span>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Conexão Segura · Tor Onion
     </div>
-</div>
-
-<div class="categories">
-    <button class="cat-btn active" onclick="filterProducts('all')">Todos</button>
-    <button class="cat-btn" onclick="filterProducts('estimulantes')">Estimulantes</button>
-    <button class="cat-btn" onclick="filterProducts('recreativos')">Recreativos</button>
-    <button class="cat-btn" onclick="filterProducts('sedativos')">Sedativos</button>
-    <button class="cat-btn" onclick="filterProducts('psicodélicos')">Psicodélicos</button>
-</div>
-
-<div class="products" id="productGrid"></div>
-
-<div class="footer">
-    <div class="links">
-        <a href="#" onclick="showToast('FAQ — Em breve')">FAQ</a>
-        <a href="#" onclick="showToast('Suporte: @mydrugs_fast (Signal)')">Suporte</a>
-        <a href="#" onclick="showToast('Termos de uso — Leia antes de comprar')">Termos</a>
-        <a href="#" onclick="showToast('PGP: 0x3F2A...B8E1')">PGP Key</a>
+    <h1>O mercado mais<br><span>confiável</span> da rede</h1>
+    <p>Milhares de produtos verificados. Entregas discretas em toda a Europa. Pagamento anônimo em criptomoedas.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">12.847+</div>
+        <div class="hero-stat-label">Vendas realizadas</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">4.92</div>
+        <div class="hero-stat-label">Avaliação média</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">2.341</div>
+        <div class="hero-stat-label">Avaliações</div>
+      </div>
     </div>
-    MyDrugs.fast © 2026 — Projeto inspirado na série "Como Vender Drogas Online (Fast)" • Fins educacionais • 🟢 Online
-</div>
-
-<div class="modal" id="cartModal">
-    <div class="modal-content">
-        <button class="close" onclick="closeCart()">✕</button>
-        <h2>🛒 Carrinho</h2>
-        <div id="cartItems"><div class="empty-cart"><span class="big-emoji">🛒</span>Seu carrinho está vazio</div></div>
-        <div class="cart-total"><span>Total</span><span class="total-price" id="cartTotal">€ 0.00</span></div>
-        <button class="checkout-btn" onclick="openPayment()">✓ FINALIZAR COMPRA</button>
+  </div>
+  <div class="hero-right">
+    <div class="hero-right-icon">🛡️</div>
+    <h3>M1000 · Vendedor Verificado</h3>
+    <p>Membro desde 2019 · 100% de feedback positivo</p>
+    <div class="trust-badge">⭐ 4.92 (2.341 avaliações)</div>
+    <div class="trust-line">
+      <span>✅ Pagamento anônimo</span>
+      <span>🔒 Discreto</span>
     </div>
-</div>
+  </div>
+</section>
 
-<div class="modal payment-modal" id="paymentModal">
-    <div class="modal-content">
-        <button class="close" onclick="closePayment()">✕</button>
-        <div id="paymentContent"></div>
+<!-- TRUST ROW -->
+<section class="trust-row">
+  <div class="trust-item">
+    <div class="trust-item-icon">🔐</div>
+    <h4>Criptografia 256-bit</h4>
+    <p>PGP end-to-end em todas as comunicações</p>
+  </div>
+  <div class="trust-item">
+    <div class="trust-item-icon">⚡</div>
+    <h4>Entrega 24h</h4>
+    <p>Rastreamento em tempo real</p>
+  </div>
+  <div class="trust-item">
+    <div class="trust-item-icon">⭐</div>
+    <h4>4.92 / 5.0</h4>
+    <p>Mais de 2.300 avaliações verificadas</p>
+  </div>
+  <div class="trust-item">
+    <div class="trust-item-icon">🌐</div>
+    <h4>Tor Onion</h4>
+    <p>Acesso anônimo via rede Tor</p>
+  </div>
+</section>
+
+<!-- FILTROS -->
+<section class="filter-bar">
+  <span class="filter-bar-label">Categorias:</span>
+  <button class="filter-btn active" data-filter="todos">Todos</button>
+  <button class="filter-btn" data-filter="estimulantes">Estimulantes</button>
+  <button class="filter-btn" data-filter="recreativos">Recreativos</button>
+  <button class="filter-btn" data-filter="sedativos">Sedativos</button>
+  <button class="filter-btn" data-filter="psicodelicos">Psicodélicos</button>
+</section>
+
+<!-- PRODUTOS -->
+<section class="products-section">
+  <div class="products-header">
+    <h2>🏪 Produtos</h2>
+    <span>12 produtos disponíveis</span>
+  </div>
+  <div class="products-grid" id="productsGrid"></div>
+</section>
+
+<!-- AVALIAÇÕES -->
+<section class="reviews-section">
+  <div class="reviews-header">
+    <h2>📝 Avaliações dos Compradores</h2>
+    <div class="reviews-summary">
+      <div class="reviews-avg">
+        <div class="reviews-avg-num">4.92</div>
+        <div class="reviews-avg-stars">★★★★★</div>
+        <div class="reviews-avg-total">2.341 avaliações</div>
+      </div>
+      <div class="reviews-bars">
+        <div class="review-bar-row"><span>5★</span><div class="review-bar-bg"><div class="review-bar-fill" style="width:89%"></div></div></div>
+        <div class="review-bar-row"><span>4★</span><div class="review-bar-bg"><div class="review-bar-fill" style="width:8%"></div></div></div>
+        <div class="review-bar-row"><span>3★</span><div class="review-bar-bg"><div class="review-bar-fill" style="width:2%"></div></div></div>
+        <div class="review-bar-row"><span>2★</span><div class="review-bar-bg"><div class="review-bar-fill" style="width:0.5%"></div></div></div>
+        <div class="review-bar-row"><span>1★</span><div class="review-bar-bg"><div class="review-bar-fill" style="width:0.5%"></div></div></div>
+      </div>
     </div>
+  </div>
+  <div class="reviews-list" id="reviewsList"></div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div>
+    <div class="footer-brand">My<span>Drugs</span></div>
+    <p>MyDrugs é o marketplace mais confiável da rede. Operamos exclusivamente via Tor e aceitamos criptomoedas. Todas as transações são anônimas e criptografadas.<br><br>⚡ Mais de 12.000 vendas realizadas com sucesso.</p>
+  </div>
+  <div>
+    <h4>Links</h4>
+    <a href="#">Produtos</a>
+    <a href="#">Novidades</a>
+    <a href="#">FAQ</a>
+    <a href="#">Suporte</a>
+  </div>
+  <div>
+    <h4>Segurança</h4>
+    <a href="#">Chave PGP</a>
+    <a href="#">Termos de Uso</a>
+    <a href="#">Privacidade</a>
+    <a href="#">Status do Servidor</a>
+  </div>
+  <div>
+    <h4>Contato</h4>
+    <a href="#">Suporte 24h</a>
+    <a href="#">Reportar Bug</a>
+    <a href="#">Parcerias</a>
+    <a href="#">Status</a>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <span>© 2026 MyDrugs · Operando desde 2019</span>
+  <div class="footer-bottom-links">
+    <a href="#">Termos</a>
+    <a href="#">Privacidade</a>
+    <a href="#">PGP Key</a>
+  </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- CART OVERLAY -->
+<div class="cart-overlay" id="cartOverlay"></div>
+
+<!-- CART MODAL -->
+<div class="cart-modal" id="cartModal">
+  <div class="cart-modal-header">
+    <h3>🛒 Seu Carrinho</h3>
+    <button class="cart-close" id="cartClose">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty">
+      <div class="cart-empty-icon">🛒</div>
+      <p>Carrinho vazio</p>
+      <p style="font-size:13px;margin-top:4px;">Adicione produtos para começar</p>
+    </div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Total</span>
+      <span id="cartTotal">€ 0,00</span>
+    </div>
+    <button class="checkout-btn" id="checkoutBtn" disabled>Finalizar Compra</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon">✅</span>
+  <span class="toast-text" id="toastText">Produto adicionado ao <span>carrinho</span></span>
+</div>
 
 <script>
-    const products = [
-        { id: 1, name: "SpeedMax XT", emoji: "⚡", desc: "Energia extrema. Foco total. 12h de duração sem crash.", price: 45, category: "estimulantes", badge: "🔥 Mais Vendido", rating: 4.8, reviews: 234 },
-        { id: 2, name: "CocoPure", emoji: "❄️", desc: "Pureza testada em laboratório. Fornecedor direto da América do Sul.", price: 80, category: "estimulantes", badge: "Premium", rating: 4.9, reviews: 412 },
-        { id: 3, name: "GreenDream", emoji: "🌿", desc: "Natural. Cultivo orgânico indoor. Efeito relaxante e suave.", price: 25, category: "recreativos", badge: "Novo", rating: 4.5, reviews: 89 },
-        { id: 4, name: "Purple Haze", emoji: "🍬", desc: "Doces artesanais. 25mg por unidade. Dosagem precisa.", price: 35, category: "recreativos", badge: "", rating: 4.3, reviews: 156 },
-        { id: 5, name: "MellowDown", emoji: "💜", desc: "Ansiedade e insônia? Relaxamento profundo sem sedação pesada.", price: 30, category: "sedativos", badge: "⭐ Popular", rating: 4.7, reviews: 321 },
-        { id: 6, name: "DeepSleep", emoji: "💊", desc: "Indutor de sono profundo. Zero ressaca. 8h de descanso reparador.", price: 28, category: "sedativos", badge: "", rating: 4.4, reviews: 198 },
-        { id: 7, name: "AstralTrip", emoji: "🌀", desc: "Expansão da consciência. Visuais intensos. Jornada interior profunda.", price: 55, category: "psicodélicos", badge: "🚀 Potente", rating: 4.9, reviews: 87 },
-        { id: 8, name: "MoonShrooms", emoji: "🍄", desc: "Cogumelos liofilizados. Microdose ou trilha completa. Origem orgânica.", price: 40, category: "psicodélicos", badge: "", rating: 4.6, reviews: 143 },
-        { id: 9, name: "FocusFuel", emoji: "🧠", desc: "Concentração máxima. Produtividade sem ansiedade. 100mg por cápsula.", price: 20, category: "estimulantes", badge: "Econômico", rating: 4.2, reviews: 267 },
-        { id: 10, name: "CandyFlip", emoji: "🌈", desc: "Kit festa completo. MDMA + LSD. Experiência sinestésica total.", price: 65, category: "recreativos", badge: "Kit Especial", rating: 4.8, reviews: 56 },
-        { id: 11, name: "CalmWave", emoji: "🌊", desc: "CBD puro 99%. Óleo sublingual. Zero THC. Efeito ansiolítico.", price: 22, category: "sedativos", badge: "Legal", rating: 4.1, reviews: 412 },
-        { id: 12, name: "VoidRealm", emoji: "👁️", desc: "DMT puro. Viagem breakthrough. Não recomendado para iniciantes.", price: 70, category: "psicodélicos", badge: "⚠️ Experientes", rating: 4.7, reviews: 34 }
-    ];
+// ========== DADOS ==========
+const products = [
+  {id:1,cat:"estimulantes",name:"MDMA Cristal",icon:"💊",desc:"Cristal de MDMA puro (testado 86%+). Efeito eufórico e empatogênico. Duração 4-6h.",price:45,rating:4.9,reviews:342,sales:"1.247",badge:"popular",badgeText:"🔥 Popular"},
+  {id:2,cat:"recreativos",name:"Cannabis Premium",icon:"🌿",desc:"Flores selecionadas AAA. Strains: Gorilla Glue, Amnesia Haze. Peso 5g.",price:35,rating:4.8,reviews:289,sales:"982",badge:"bestseller",badgeText:"⭐ Best-seller"},
+  {id:3,cat:"psicodelicos",name:"LSD Blotter",icon:"🔮",desc:"Papel importado 200ug. Testado em laboratório. Efeito 8-12h. Visuals intensos.",price:25,rating:4.9,reviews:198,sales:"756",badge:"new",badgeText:"✨ Novo lote"},
+  {id:4,cat:"estimulantes",name:"Cocaína Escama",icon:"❄️",desc:"Escama de alta pureza (testada 92%+). Colombiana. Efeito limpo e energético.",price:120,rating:4.7,reviews:156,sales:"634",badge:"limited",badgeText:"⚠️ Limitado"},
+  {id:5,cat:"sedativos",name:"Xanax 2mg",icon:"💤",desc:"Alprazolam 2mg farmacêutico. Blister original. Ansiedade e pânico.",price:18,rating:4.6,reviews:212,sales:"891",badge:"",badgeText:""},
+  {id:6,cat:"psicodelicos",name:"Cogumelos Mágicos",icon:"🍄",desc:"Cogumelos secos Psilocybe Cubensis. 10g. Efeito psicodélico suave a intenso.",price:30,rating:4.8,reviews:167,sales:"523",badge:"popular",badgeText:"🔥 Popular"},
+  {id:7,cat:"recreativos",name:"MDMA Comprimido",icon:"💎",desc:"Comprimidos 250mg. Logotipo Tesla/CP. Testado. Efeito suave e duradouro.",price:15,rating:4.5,reviews:278,sales:"1.892",badge:"bestseller",badgeText:"⭐ Best-seller"},
+  {id:8,cat:"estimulantes",name:"Speed (Anfetamina)",icon:"⚡",desc:"Pasta de speed 70%+. Efeito estimulante forte. Ótimo para festas.",price:20,rating:4.4,reviews:134,sales:"456",badge:"",badgeText:""},
+  {id:9,cat:"sedativos",name:"Codeína Xarope",icon:"🍒",desc:"Codeína 15mg/5ml com prometazina. Frasco 100ml. Uso controlado.",price:55,rating:4.3,reviews:89,sales:"312",badge:"limited",badgeText:"⚠️ Limitado"},
+  {id:10,cat:"psicodelicos",name:"DMT Vape",icon:"🌀",desc:"Cartucho DMT 1ml. Extração pura. Experiência breakthrough. 3-5 puffs.",price:60,rating:4.9,reviews:76,sales:"234",badge:"new",badgeText:"✨ Novo"},
+  {id:11,cat:"recreativos",name:"Haxixe Marroquino",icon:"🟤",desc:"Haxixe prensado de primeira qualidade. 5g. Tradicional método marroquino.",price:28,rating:4.6,reviews:145,sales:"678",badge:"",badgeText:""},
+  {id:12,cat:"estimulantes",name:"Adderall 30mg",icon:"🧠",desc:"Adderall XR 30mg genérico. Foco e produtividade. Blister lacrado.",price:22,rating:4.5,reviews:198,sales:"745",badge:"popular",badgeText:"🔥 Popular"}
+];
 
-    let cart = {};
-    let currentFilter = 'all';
-    let currentTab = 'all';
+const reviews = [
+  {user:"anon78932",avatar:"⭐",stars:5,text:"Melhor qualidade que já encontrei na rede. O MDMA cristal chegou em 2 dias, teste de reagente confirmou pureza. Recomendo.",date:"há 3 dias",product:"MDMA Cristal"},
+  {user:"darknet_king",avatar:"🌿",stars:5,text:"Compro aqui há mais de um ano. Nunca tive problema com entrega ou qualidade. O suporte é rápido.",date:"há 1 semana",product:"Cannabis Premium"},
+  {user:"neon_pixel",avatar:"🔮",stars:5,text:"LSD chegou perfeitamente embalado. Papel de altíssima qualidade, visual limpo. Já vou comprar mais.",date:"há 5 dias",product:"LSD Blotter"},
+  {user:"frostbyte42",avatar:"❄️",stars:4,text:"Cocaína muito boa, pureza realmente alta. Entrega discreta. Só demorou 3 dias por causa do fim de semana.",date:"há 2 dias",product:"Cocaína Escama"},
+  {user:"luna_escura",avatar:"🍄",stars:5,text:"Os cogumelos são fantásticos. 2g já deram uma experiência incrível. Embalagem super discreta.",date:"há 4 dias",product:"Cogumelos Mágicos"},
+  {user:"cyber_fox",avatar:"💎",stars:5,text:"MDMA comprimido top. Testei com 3 reagentes, tudo limpo. Melhor custo-benefício da rede.",date:"há 6 dias",product:"MDMA Comprimido"},
+  {user:"void_walker",avatar:"🌀",stars:5,text:"DMT mais puro que já vi. Breakthrough na segunda tragada. Experiência transcendental. Obrigado, M1000.",date:"há 2 dias",product:"DMT Vape"},
+  {user:"silver_ghost",avatar:"💤",stars:4,text:"Xanax original, blister lacrado. Funciona perfeitamente para ansiedade. Entrega rápida.",date:"há 1 semana",product:"Xanax 2mg"},
+  {user:"phantom_byte",avatar:"⚡",stars:5,text:"Speed de qualidade. Testei e tem realmente 70%+. Ótimo para trampo e festa. Recomendo.",date:"há 3 dias",product:"Speed (Anfetamina)"},
+  {user:"night_owl",avatar:"🧠",stars:5,text:"Adderall original. Foco extremo por horas. Chegou em 2 dias bem embalado. Nota 10.",date:"há 4 dias",product:"Adderall 30mg"}
+];
 
-    function renderProducts(filter) {
-        const grid = document.getElementById('productGrid');
-        let filtered = filter === 'all' ? products : products.filter(p => p.category === filter);
-        if (currentTab === 'destaque') filtered = products.filter(p => p.badge);
-        if (currentTab === 'novos') filtered = products.filter(p => p.badge === 'Novo' || p.id > 8);
-        grid.innerHTML = filtered.map(p => `
-            <div class="product-card">
-                ${p.badge ? `<div class="badge">${p.badge}</div>` : ''}
-                <span class="emoji">${p.emoji}</span>
-                <h3>${p.name}</h3>
-                <div class="rating"><span class="stars">★★★★★</span> ${p.rating} (${p.reviews})</div>
-                <div class="desc">${p.desc}</div>
-                <div class="meta">
-                    <div class="price">€${p.price} <small>/ und.</small></div>
-                    <button class="buy-btn" onclick="addToCart(${p.id})">+ Comprar</button>
-                </div>
+// ========== STATE ==========
+let cart = [];
+let currentFilter = "todos";
+
+// ========== RENDER PRODUTOS ==========
+function renderProducts(filter){
+  const grid = document.getElementById("productsGrid");
+  const filtered = filter === "todos" ? products : products.filter(p => p.cat === filter);
+  
+  grid.innerHTML = filtered.map(p => {
+    const stars = "★".repeat(Math.round(p.rating)) + "☆".repeat(5-Math.round(p.rating));
+    const badgeHtml = p.badge ? `<span class="product-badge badge-${p.badge}">${p.badgeText}</span>` : "";
+    
+    return `
+      <div class="product-card" data-cat="${p.cat}">
+        ${badgeHtml}
+        <div class="product-icon">${p.icon}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-desc">${p.desc}</div>
+        <div class="product-meta">
+          <div class="product-rating">
+            <span class="stars">${stars}</span>
+            <span class="rating-num">${p.rating}</span>
+            <span class="reviews-count">(${p.reviews})</span>
+          </div>
+          <div class="product-sales">📦 ${p.sales} vendidos</div>
+        </div>
+        <div class="product-price-row">
+          <div class="product-price">€${p.price} <span>un</span></div>
+          <button class="add-cart" onclick="addToCart(${p.id})">Adicionar</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// ========== RENDER REVIEWS ==========
+function renderReviews(){
+  const list = document.getElementById("reviewsList");
+  list.innerHTML = reviews.map(r => {
+    const stars = "★".repeat(r.stars) + "☆".repeat(5-r.stars);
+    return `
+      <div class="review-card">
+        <div class="review-avatar">${r.avatar}</div>
+        <div class="review-content">
+          <div class="review-top">
+            <div>
+              <div class="review-user">${r.user} <span>· ${r.date}</span></div>
+              <div class="review-stars">${stars}</div>
             </div>
-        `).join('');
-    }
+            <span style="font-size:11px;color:var(--text3);">↳ ${r.product}</span>
+          </div>
+          <div class="review-text">${r.text}</div>
+          <div class="review-verified">✅ Compra verificada</div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
 
-    function filterProducts(category) {
-        currentFilter = category;
-        currentTab = 'all';
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-        document.querySelector('.nav-links a:first-child')?.classList.add('active');
-        event?.target?.classList?.add('active');
-        renderProducts(category);
-    }
+// ========== CART FUNCTIONS ==========
+function addToCart(id){
+  const p = products.find(x => x.id === id);
+  const exist = cart.find(x => x.id === id);
+  if(exist){
+    exist.qty++;
+  }} else {
+    cart.push({...p, qty: 1});
+  }
+  updateCart();
+  showToast(`${p.icon} ${p.name} adicionado ao carrinho`);
+}
 
-    function switchTab(tab) {
-        currentTab = tab;
-        document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        document.querySelector('.cat-btn')?.classList.add('active');
-        event?.target?.classList?.add('active');
-        renderProducts('all');
-    }
+function removeFromCart(id){
+  cart = cart.filter(x => x.id !== id);
+  updateCart();
+}
 
-    function addToCart(id) {
-        if (!cart[id]) cart[id] = { ...products.find(p => p.id === id), qty: 0 };
-        cart[id].qty++;
-        updateCart();
-        showToast(`✓ ${cart[id].name} — adicionado`);
-    }
+function changeQty(id, delta){
+  const item = cart.find(x => x.id === id);
+  if(!item) return;
+  item.qty += delta;
+  if(item.qty <= 0) {
+    removeFromCart(id);
+    return;
+  }
+  updateCart();
+}
 
-    function removeFromCart(id) {
-        if (cart[id]) {
-            cart[id].qty--;
-            if (cart[id].qty <= 0) delete cart[id];
-        }
-        updateCart();
-    }
+function updateCart(){
+  const count = cart.reduce((acc, x) => acc + x.qty, 0);
+  document.getElementById("cartCount").textContent = count;
+  
+  const total = cart.reduce((acc, x) => acc + x.price * x.qty, 0);
+  document.getElementById("cartTotal").textContent = `€ ${total.toFixed(2)}`;
+  
+  const btn = document.getElementById("checkoutBtn");
+  btn.disabled = cart.length === 0;
+  
+  const container = document.getElementById("cartItems");
+  if(cart.length === 0){
+    container.innerHTML = `
+      <div class="cart-empty">
+        <div class="cart-empty-icon">🛒</div>
+        <p>Carrinho vazio</p>
+        <p style="font-size:13px;margin-top:4px;">Adicione produtos para começar</p>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <div class="cart-item-icon">${item.icon}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">€${(item.price * item.qty).toFixed(2)}</div>
+      </div>
+      <div class="cart-item-qty">
+        <button onclick="changeQty(${item.id}, -1)">−</button>
+        <span>${item.qty}</span>
+        <button onclick="changeQty(${item.id}, 1)">+</button>
+      </div>
+      <button class="cart-item-remove" onclick="removeFromCart(${item.id})">✕</button>
+    </div>
+  `).join("");
+}
 
-    function updateCart() {
-        const totalItems = Object.values(cart).reduce((s, i) => s + i.qty, 0);
-        const countEl = document.getElementById('cartCount');
-        countEl.textContent = totalItems;
-        countEl.style.display = totalItems > 0 ? 'flex' : 'none';
-        const total = Object.values(cart).reduce((s, i) => s + (i.price * i.qty), 0);
-        document.getElementById('cartTotal').textContent = `€ ${total.toFixed(2)}`;
-        const cartDiv = document.getElementById('cartItems');
-        if (Object.keys(cart).length === 0) {
-            cartDiv.innerHTML = '<div class="empty-cart"><span class="big-emoji">🛒</span>Seu carrinho está vazio</div>';
-            return;
-        }
-        cartDiv.innerHTML = Object.values(cart).map(item => `
-            <div class="cart-item">
-                <span class="name">${item.emoji} ${item.name}</span>
-                <div class="qty">
-                    <button onclick="removeFromCart(${item.id})">−</button>
-                    <span>${item.qty}</span>
-                    <button onclick="addToCart(${item.id})">+</button>
-                </div>
-                <span class="item-price">€${(item.price * item.qty).toFixed(2)}</span>
-            </div>
-        `).join('');
-    }
+function showToast(msg){
+  const t = document.getElementById("toast");
+  document.getElementById("toastText").innerHTML = msg;
+  t.classList.add("show");
+  clearTimeout(t._timeout);
+  t._timeout = setTimeout(() => t.classList.remove("show"), 2500);
+}
 
-    function openCart() { document.getElementById('cartModal').classList.add('active'); updateCart(); }
-    function closeCart() { document.getElementById('cartModal').classList.remove('active'); }
-    function closePayment() { document.getElementById('paymentModal').classList.remove('active'); }
+// ========== CART MODAL ==========
+const cartBtn = document.getElementById("cartBtn");
+const cartModal = document.getElementById("cartModal");
+const cartOverlay = document.getElementById("cartOverlay");
+const cartClose = document.getElementById("cartClose");
 
-    function openPayment() {
-        if (Object.keys(cart).length === 0) { showToast('Carrinho vazio!'); return; }
-        document.getElementById('cartModal').classList.remove('active');
-        const total = Object.values(cart).reduce((s, i) => s + (i.price * i.qty), 0);
-        const pixCode = '00020126580014BR.GOV.BCB.PIX0136mydrugs@fast.io5204000053039865802BR5925MyDrugs Fast6009Sao Paulo62070503***6304' + Math.random().toString(36).substring(2,8).toUpperCase();
-        document.getElementById('paymentContent').innerHTML = `
-            <h2>💳 Pagamento</h2>
-            <p style="color:#888;font-size:0.85rem;margin-bottom:14px;">Total: <strong style="color:#00ffc8">€ ${total.toFixed(2)}</strong></p>
-            <div class="methods">
-                <button onclick="selectPayment('pix')" id="payPix" style="border-color:rgba(0,255,200,0.3);color:#00ffc8;">🇧🇷 Pix</button>
-                <button onclick="selectPayment('btc')" id="payBtc">₿ Bitcoin</button>
-                <button onclick="selectPayment('eth')" id="payEth">◆ Ethereum</button>
-                <button onclick="selectPayment('monero')" id="payMonero">● Monero</button>
-            </div>
-            <div id="paymentDetail"></div>
-            <button class="checkout-btn" onclick="confirmPayment()" style="margin-top:10px;">✓ CONFIRMAR PAGAMENTO</button>
-        `;
-        document.getElementById('paymentModal').classList.add('active');
-        selectPayment('pix');
-    }
+function openCart(){
+  cartModal.classList.add("open");
+  cartOverlay.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
 
-    function selectPayment(method) {
-        document.querySelectorAll('.methods button').forEach(b => { b.style.borderColor = 'rgba(255,255,255,0.07)'; b.style.color = '#ccc'; });
-        const btn = document.getElementById({ pix: 'payPix', btc: 'payBtc', eth: 'payEth', monero: 'payMonero' }[method]);
-        if (btn) { btn.style.borderColor = 'rgba(0,255,200,0.3)'; btn.style.color = '#00ffc8'; }
-        const total = Object.values(cart).reduce((s, i) => s + (i.price * i.qty), 0);
-        const details = {
-            pix: `<div class="pix-display">
-                    <div style="font-size:2rem;margin-bottom:8px;">📱</div>
-                    <div style="font-size:0.8rem;color:#888;">Pix Copia e Cola</div>
-                    <div class="code">${'00020126580014BR.GOV.BCB.PIX0136mydrugs@fast.io5204000053039865802BR5925MyDrugs Fast6009Sao Paulo62070503***6304' + Math.random().toString(36).substring(2,8).toUpperCase()}</div>
-                    <div style="margin-top:10px;font-size:0.7rem;color:#555;">Ou pague com QR Code — € ${total.toFixed(2)}</div>
-                 </div>`,
-            btc: `<div class="pix-display">
-                    <div style="font-size:2rem;margin-bottom:8px;">₿</div>
-                    <div class="code">bc1q4myvrx7y3zkj9w2x0e8t5f6g7h8j9k0l1m2n3</div>
-                    <div style="margin-top:10px;font-size:0.7rem;color:#555;">Valor: ${(total / 82000).toFixed(6)} BTC • Confirmações: 2</div>
-                 </div>`,
-            eth: `<div class="pix-display">
-                    <div style="font-size:2rem;margin-bottom:8px;">◆</div>
-                    <div class="code">0x3f2A1b4C5d6E7f8G9h0Ij1K2l3M4n5O6p7Q8r9S</div>
-                    <div style="margin-top:10px;font-size:0.7rem;color:#555;">Valor: ${(total / 2800).toFixed(4)} ETH • Rede: ERC-20</div>
-                 </div>`,
-            monero: `<div class="pix-display">
-                    <div style="font-size:2rem;margin-bottom:8px;">●</div>
-                    <div class="code">4A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5Z6A7B8C9D0E1F2G3H4I5J6K7L8M9N0O1P2Q3R4S5T6U7V8W9X0Y1Z2A3B4C5D6E7F8G9H0I1J2K3L4M5N6O7P8Q9R0S1T2U3V4W5X6Y7Z8A9B0C1D2E3F4G5H6I7J8K9L0M1N2O3P4Q5R6S7T8U9V0W1X2Y3Z4A5B6C7D8E9F0G1H2I3J4K5L6M7N8O9P0Q</div>
-                    <div style="margin-top:10px;font-size:0.7rem;color:#555;">Valor: ${(total / 210).toFixed(4)} XMR</div>
-                 </div>`
-        };
-        document.getElementById('paymentDetail').innerHTML = details[method] || '';
-    }
+function closeCart(){
+  cartModal.classList.remove("open");
+  cartOverlay.classList.remove("open");
+  document.body.style.overflow = "";
+}
 
-    function confirmPayment() {
-        const total = Object.values(cart).reduce((s, i) => s + (i.price * i.qty), 0);
-        document.getElementById('paymentContent').innerHTML = `
-            <div class="success">
-                <span class="big">✅</span>
-                <h3>Pagamento Confirmado!</h3>
-                <p>Pedido #${Math.random().toString(36).substring(2,8).toUpperCase()}</p>
-                <p style="margin-top:12px;">Total: € ${total.toFixed(2)}</p>
-                <p style="font-size:0.7rem;color:#555;margin-top:16px;">O link de entrega será enviado via Signal • 🕒 24h</p>
-                <button class="checkout-btn" onclick="closePayment(); cart={}; updateCart();" style="margin-top:18px;">✓ VOLTAR</button>
-            </div>
-        `;
-        showToast(`✅ Pedido confirmado! € ${total.toFixed(2)}`);
-    }
+cartBtn.addEventListener("click", openCart);
+cartClose.addEventListener("click", closeCart);
+cartOverlay.addEventListener("click", closeCart);
 
-    function showToast(msg) {
-        const t = document.getElementById('toast');
-        t.textContent = msg;
-        t.classList.add('show');
-        clearTimeout(t._timeout);
-        t._timeout = setTimeout(() => t.classList.remove('show'), 3200);
-    }
+// ========== CHECKOUT ==========
+document.getElementById("checkoutBtn").addEventListener("click", function(){
+  if(cart.length === 0) return;
+  const total = cart.reduce((acc, x) => acc + x.price * x.qty, 0);
+  const orderNum = "MD-" + Date.now().toString(36).toUpperCase() + "-" + Math.random().toString(36).substring(2,6).toUpperCase();
+  
+  const items = cart.map(x => `${x.icon} ${x.name} x${x.qty}`).join("\n");
+  
+  alert(`🧾 PEDIDO CONFIRMADO\n\n📋 Número: ${orderNum}\n📦 Itens:\n${items}\n\n💰 Total: € ${total.toFixed(2)}\n\n✅ Pagamento: BTC | ETH | XMR\n📬 Envio em até 24h\n\nObrigado por comprar no MyDrugs.`);
+  
+  cart = [];
+  updateCart();
+  closeCart();
+});
 
-    document.getElementById('cartModal').addEventListener('click', function(e) { if (e.target === this) closeCart(); });
-    document.getElementById('paymentModal').addEventListener('click', function(e) { if (e.target === this) closePayment(); });
+// ========== FILTROS ==========
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", function(){
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    this.classList.add("active");
+    currentFilter = this.dataset.filter;
+    renderProducts(currentFilter);
+  });
+});
 
-    renderProducts('all');
+// ========== HEADER SCROLL ==========
+window.addEventListener("scroll", function(){
+  document.getElementById("header").classList.toggle("scrolled", window.scrollY > 20);
+});
+
+// ========== INIT ==========
+renderProducts("todos");
+renderReviews();
+updateCart();
 </script>
 </body>
 </html>
