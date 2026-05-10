@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyDrugs — Fast</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0f; }
+        ::-webkit-scrollbar-thumb { background: #00ffc8; border-radius: 3px; }
+        a { text-decoration: none; color: inherit; }
+        .header { position: fixed; top: 0; width: 100%; z-index: 100; background: rgba(10,10,15,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,255,200,0.15); padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; }
+        .logo { font-family: 'JetBrains Mono',monospace; font-weight: 900; font-size: 1.8rem; letter-spacing: -2px; background: linear-gradient(135deg,#00ffc8,#00ccff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; }
+        .logo span { font-family: 'Inter',sans-serif; font-weight: 400; font-size: 0.8rem; -webkit-text-fill-color: #666; letter-spacing: 0; }
+        .nav-links { display: flex; gap: 28px; align-items: center; }
+        .nav-links a { color: #888; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; transition: color 0.3s; cursor: pointer; padding: 4px 0; border-bottom: 2px solid transparent; }
+        .nav-links a:hover, .nav-links a.active { color: #00ffc8; border-bottom-color: #00ffc8; }
+        .cart-btn { background: transparent; border: 1.5px solid #00ffc8; color: #00ffc8; padding: 8px 18px; border-radius: 6px; font-family: 'JetBrains Mono',monospace; font-weight: 700; font-size: 0.75rem; cursor: pointer; transition: all 0.3s; position: relative; display: flex; align-items: center; gap: 8px; }
+        .cart-btn:hover { background: rgba(0,255,200,0.1); box-shadow: 0 0 20px rgba(0,255,200,0.15); }
+        .cart-count { background: #ff0040; color: #fff; font-size: 0.6rem; font-weight: 700; min-width: 18px; height: 18px; border-radius: 50%; display: none; align-items: center; justify-content: center; padding: 0 4px; }
+        .hero { margin-top: 70px; padding: 60px 40px 30px; text-align: center; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 700px; height: 500px; background: radial-gradient(ellipse,rgba(0,255,200,0.06),transparent 70%); pointer-events: none; }
+        .hero h1 { font-size: 3.8rem; font-weight: 900; letter-spacing: -3px; background: linear-gradient(135deg,#fff 20%,#00ffc8 80%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; line-height: 1.1; }
+        .hero p { color: #666; font-size: 1.1rem; max-width: 480px; margin: 0 auto 16px; }
+        .trust-row { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 0.7rem; font-family: 'JetBrains Mono',monospace; color: #555; }
+        .trust-row span { padding: 6px 16px; border: 1px solid rgba(0,255,200,0.1); border-radius: 20px; color: #00ffc8; }
+        .categories { display: flex; justify-content: center; gap: 10px; padding: 20px 40px; flex-wrap: wrap; }
+        .cat-btn { padding: 8px 22px; border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; background: transparent; color: #777; font-family: 'Inter',sans-serif; font-size: 0.75rem; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+        .cat-btn:hover, .cat-btn.active { border-color: #00ffc8; color: #00ffc8; background: rgba(0,255,200,0.05); }
+        .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; padding: 10px 40px 50px; max-width: 1200px; margin: 0 auto; }
+        .product-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 22px; transition: all 0.35s cubic-bezier(0.25,0.46,0.45,0.94); position: relative; overflow: hidden; }
+        .product-card:hover { border-color: rgba(0,255,200,0.25); transform: translateY(-5px); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .product-card .badge { position: absolute; top: 14px; right: 14px; background: #00ffc8; color: #0a0a0f; font-size: 0.55rem; font-weight: 800; padding: 3px 10px; border-radius: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .product-card .emoji { font-size: 2.8rem; margin-bottom: 10px; display: block; }
+        .product-card h3 { font-family: 'JetBrains Mono',monospace; font-size: 1rem; margin-bottom: 4px; color: #fff; }
+        .product-card .rating { font-size: 0.7rem; color: #555; margin-bottom: 8px; }
+        .product-card .rating .stars { color: #ffd700; letter-spacing: 1px; }
+        .product-card .desc { font-size: 0.78rem; color: #666; margin-bottom: 14px; line-height: 1.5; min-height: 36px; }
+        .product-card .meta { display: flex; justify-content: space-between; align-items: center; }
+        .product-card .price { font-family: 'JetBrains Mono',monospace; font-size: 1.4rem; font-weight: 700; color: #00ffc8; }
+        .product-card .price small { font-size: 0.6rem; color: #555; font-weight: 400; }
+        .product-card .buy-btn { padding: 8px 20px; background: transparent; border: 1.5px solid #00ffc8; color: #00ffc8; border-radius: 6px; font-family: 'JetBrains Mono',monospace; font-weight: 700; font-size: 0.7rem; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .product-card .buy-btn:hover { background: #00ffc8; color: #0a0a0f; box-shadow: 0 0 20px rgba(0,255,200,0.2); }
+        .section-title { max-width: 1200px; margin: 30px auto 5px; padding: 0 40px; font-family: 'JetBrains Mono',monospace; font-size: 1.1rem; color: #555; letter-spacing: 2px; text-transform: uppercase; }
+        .footer { text-align: center; padding: 30px 20px; border-top: 1px solid rgba(255,255,255,0.04); color: #444; font-size: 0.7rem; font-family: 'JetBrains Mono',monospace; }
+        .footer .links { display: flex; justify-content: center; gap: 24px; margin-bottom: 12px; }
+        .footer .links a { color: #555; transition: color 0.3s; font-size: 0.7rem; }
+        .footer .links a:hover { color: #00ffc8; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); z-index: 200; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: #12121c; border: 1px solid rgba(0,255,200,0.15); border-radius: 18px; padding: 36px; max-width: 440px; width: 92%; position: relative; animation: modalIn 0.25s ease; }
+        @keyframes modalIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-content h2 { font-family: 'JetBrains Mono',monospace; color: #00ffc8; font-size: 1.3rem; margin-bottom: 18px; }
+        .modal-content .close { position: absolute; top: 14px; right: 18px; color: #555; font-size: 1.4rem; cursor: pointer; background: none; border: none; transition: color 0.3s; line-height: 1; }
+        .modal-content .close:hover { color: #fff; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04); gap: 10px; }
+        .cart-item .name { font-size: 0.85rem; flex: 1; }
+        .cart-item .qty { display: flex; gap: 8px; align-items: center; }
+        .cart-item .qty button { background: rgba(255,255,255,0.08); border: none; color: #ccc; width: 26px; height: 26px; border-radius: 5px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .cart-item .qty button:hover { background: #00ffc8; color: #0a0a0f; }
+        .cart-item .qty span { min-width: 20px; text-align: center; font-family: 'JetBrains Mono',monospace; font-size: 0.85rem; }
+        .cart-item .item-price { font-family: 'JetBrains Mono',monospace; color: #00ffc8; font-size: 0.85rem; min-width: 60px; text-align: right; }
+        .cart-total { display: flex; justify-content: space-between; padding: 16px 0 8px; font-family: 'JetBrains Mono',monospace; font-size: 1.2rem; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 8px; }
+        .cart-total .total-price { color: #00ffc8; }
+        .checkout-btn { width: 100%; padding: 14px; background: #00ffc8; border: none; color: #0a0a0f; font-family: 'JetBrains Mono',monospace; font-weight: 800; font-size: 0.95rem; border-radius: 8px; cursor: pointer; transition: all 0.3s; margin-top: 14px; text-transform: uppercase; letter-spacing: 1px; }
+        .checkout-btn:hover { box-shadow: 0 0 35px rgba(0,255,200,0.3); transform: translateY(-1px); }
+        .empty-cart { color: #555; text-align: center; padding: 40px 20px; font-size: 0.85rem; }
+        .empty-cart .big-emoji { font-size: 3rem; display: block; margin-bottom: 12px; }
+        .toast { position: fixed; bottom: 30px; right: 30px; background: #12121c; border: 1px solid #00ffc8; color: #00ffc8; padding: 14px 24px; border-radius: 10px; font-family: 'JetBrains Mono',monospace; font-size: 0.78rem; opacity: 0; transform: translateY(20px); transition: all 0.35s cubic-bezier(0.25,0.46,0.45,0.94); z-index: 300; pointer-events: none; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .payment-modal .methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0; }
+        .payment-modal .methods button { padding: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; color: #ccc; font-family: 'Inter',sans-serif; font-size: 0.8rem; cursor: pointer; transition: all 0.3s; }
+        .payment-modal .methods button:hover { border-color: #00ffc8; color: #00ffc8; background: rgba(0,255,200,0.05); }
+        .payment-modal .input-group { margin: 14px 0; }
+        .payment-modal .input-group label { display: block; font-size: 0.7rem; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .payment-modal .input-group input { width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #fff; font-family: 'JetBrains Mono',monospace; font-size: 0.85rem; outline: none; transition: border 0.3s; }
+        .payment-modal .input-group input:focus { border-color: #00ffc8; }
+        .payment-modal .pix-display { background: rgba(0,255,200,0.04); border: 1px dashed rgba(0,255,200,0.2); border-radius: 10px; padding: 20px; text-align: center; margin: 14px 0; }
+        .payment-modal .pix-display .code { font-family: 'JetBrains Mono',monospace; font-size: 0.7rem; color: #00ffc8; word-break: break-all; margin-top: 8px; }
+        .payment-modal .success { text-align: center; padding: 30px 0; }
+        .payment-modal .success .big { font-size: 4rem; display: block; margin-bottom: 10px; }
+        .payment-modal .success h3 { color: #00ffc8; font-family: 'JetBrains Mono',monospace; margin-bottom: 6px; }
+        .payment-modal .success p { color: #555; font-size: 0.8rem; }
+        @media (max-width: 768px) { .header { padding: 12px 18px; } .logo { font-size: 1.3rem; } .hero h1 { font-size: 2rem; } .hero { padding: 50px 20px 20px; } .products { padding: 10px 18px 40px; gap: 14px; grid-template-columns: 1fr; } .nav-links { gap: 12px; } .nav-links a { font-size: 0.65rem; letter-spacing: 0.5px; } .cart-btn { font-size: 0.65rem; padding: 6px 14px; } .modal-content { padding: 24px; } }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo" onclick="location.reload()">MyDrugs<span>.fast</span></div>
+    <div class="nav-links">
+        <a class="active" onclick="switchTab('all')">Produtos</a>
+        <a onclick="switchTab('destaque')">Destaque</a>
+        <a onclick="switchTab('novos')">Novos</a>
+        <button class="cart-btn" onclick="openCart()">🛒<span>Carrinho</span><span class="cart-count" id="cartCount">0</span></button>
+    </div>
+</div>
+
+<div class="hero">
+    <h1>Escolha. Compre. Receba.</h1>
+    <p>Marketplace discreto • Entrega garantida • Pagamento anônimo</p>
+    <div class="trust-row">
+        <span>🔒 256-bit AES</span>
+        <span>🕒 Entrega 24h</span>
+        <span>⭐ 4.8/5 (2.4k)</span>
+        <span>🌐 Tor Compatível</span>
+    </div>
+</div>
+
+<div class="categories">
+    <button class="cat-btn active" onclick="filterProducts('all')">Todos</button>
+    <button class="cat-btn" onclick="filterProducts('estimulantes')">Estimulantes</button>
+    <button class="cat-btn" onclick="filterProducts('recreativos')">Recreativos</button>
+    <button class="cat-btn" onclick="filterProducts('sedativos')">Sedativos</button>
+    <button class="cat-btn" onclick="filterProducts('psicodélicos')">Psicodélicos</button>
+</div>
+
+<div class="products" id="productGrid"></div>
+
+<div class="footer">
+    <div class="links">
+        <a href="#" onclick="showToast('FAQ — Em breve')">FAQ</a>
+        <a href="#" onclick="showToast('Suporte: @mydrugs_fast (Signal)')">Suporte</a>
+        <a href="#" onclick="showToast('Termos de uso — Leia antes de comprar')">Termos</a>
+        <a href="#" onclick="showToast('PGP: 0x3F2A...B8E1')">PGP Key</a>
+    </div>
+    MyDrugs.fast © 2026 — Projeto inspirado na série "Como Vender Drogas Online (Fast)" • Fins educacionais • 🟢 Online
+</div>
+
+<div class="modal" id="cartModal">
+    <div class="modal-content">
+        <button class="close" onclick="closeCart()">✕</button>
+        <h2>🛒 Carrinho</h2>
+        <div id="cartItems"><div class="empty-cart"><span class="big-emoji">🛒</span>Seu carrinho está vazio</div></div>
+        <div class="cart-total"><span>Total</span><span class="total-price" id="cartTotal">€ 0.00</span></div>
+        <button class="checkout-btn" onclick="openPayment()">✓ FINALIZAR COMPRA</button>
+    </div>
+</div>
+
+<div class="modal payment-modal" id="paymentModal">
+    <div class="modal-content">
+        <button class="close" onclick="closePayment()">✕</button>
+        <div id="paymentContent"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const products = [
+        { id: 1, name: "SpeedMax XT", emoji: "⚡", desc: "Energia extrema. Foco total. 12h de duração sem crash.", price: 45, category: "estimulantes", badge: "🔥 Mais Vendido", rating: 4.8, reviews: 234 },
+        { id: 2, name: "CocoPure", emoji: "❄️", desc: "Pureza testada em laboratório. Fornecedor direto da América do Sul.", price: 80, category: "estimulantes", badge: "Premium", rating: 4.9, reviews: 412 },
+        { id: 3, name: "GreenDream", emoji: "🌿", desc: "Natural. Cultivo orgânico indoor. Efeito relaxante e suave.", price: 25, category: "recreativos", badge: "Novo", rating: 4.5, reviews: 89 },
+        { id: 4, name: "Purple Haze", emoji: "🍬", desc: "Doces artesanais. 25mg por unidade. Dosagem precisa.", price: 35, category: "recreativos", badge: "", rating: 4.3, reviews: 156 },
+        { id: 5, name: "MellowDown", emoji: "💜", desc: "Ansiedade e insônia? Relaxamento profundo sem sedação pesada.", price: 30, category: "sedativos", badge: "⭐ Popular", rating: 4.7, reviews: 321 },
+        { id: 6, name: "DeepSleep", emoji: "💊", desc: "Indutor de sono profundo. Zero ressaca. 8h de descanso reparador.", price: 28, category: "sedativos", badge: "", rating: 4.4, reviews: 198 },
+        { id: 7, name: "AstralTrip", emoji: "🌀", desc: "Expansão da consciência. Visuais intensos. Jornada interior profunda.", price: 55, category: "psicodélicos", badge: "🚀 Potente", rating: 4.9, reviews: 87 },
+        { id: 8, name: "MoonShrooms", emoji: "🍄", desc: "Cogumelos liofilizados. Microdose ou trilha completa. Origem orgânica.", price: 40, category: "psicodélicos", badge: "", rating: 4.6, reviews: 143 },
+        { id: 9, name: "FocusFuel", emoji: "🧠", desc: "Concentração máxima. Produtividade sem ansiedade. 100mg por cápsula.", price: 20, category: "estimulantes", badge: "Econômico", rating: 4.2, reviews: 267 },
+        { id: 10, name: "CandyFlip", emoji: "🌈", desc: "Kit festa completo. MDMA + LSD. Experiência sinestésica total.", price: 65, category: "recreativos", badge: "Kit Especial", rating: 4.8, reviews: 56 },
+        { id: 11, name: "CalmWave", emoji: "🌊", desc: "CBD puro 99%. Óleo sublingual. Zero THC. Efeito ansiolítico.", price: 22, category: "sedativos", badge: "Legal", rating: 4.1, reviews: 412 },
+        { id: 12, name: "VoidRealm", emoji: "👁️", desc: "DMT puro. Viagem breakthrough. Não recomendado para iniciantes.", price: 70, category: "psicodélicos", badge: "⚠️ Experientes", rating: 4.7, reviews: 34 }
+    ];
+
+    let cart = {};
+    let currentFilter = 'all';
+    let currentTab = 'all';
+
+    function renderProducts(filter) {
+        const grid = document.getElementById('productGrid');
+        let filtered = filter === 'all' ? products : products.filter(p => p.category === filter);
+        if (currentTab === 'destaque') filtered = products.filter(p => p.badge);
+        if (currentTab === 'novos') filtered = products.filter(p => p.badge === 'Novo' || p.id > 8);
+        grid.innerHTML = filtered.map(p => `
+            <div class="product-card">
+                ${p.badge ? `<div class="badge">${p.badge}</div>` : ''}
+                <span class="emoji">${p.emoji}</span>
+                <h3>${p.name}</h3>
+                <div class="rating"><span class="stars">★★★★★</span> ${p.rating} (${p.reviews})</div>
+                <div class="desc">${p.desc}</div>
+                <div class="meta">
+                    <div class="price">€${p.price} <small>/ und.</small></div>
+                    <button class="buy-btn" onclick="addToCart(${p.id})">+ Comprar</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function filterProducts(category) {
+        currentFilter = category;
+        currentTab = 'all';
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+        document.querySelector('.nav-links a:first-child')?.classList.add('active');
+        event?.target?.classList?.add('active');
+        renderProducts(category);
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('.cat-btn')?.classList.add('active');
+        event?.target?.classList?.add('active');
+        renderProducts('all');
+    }
+
+    function addToCart(id) {
+        if (!cart[id]) cart[id] = { ...products.find(p => p.id === id), qty: 0 };
+        cart[id].qty++;
+        updateCart();
+        showToast(`✓ ${cart[id].name} — adicionado`);
+    }
+
+    function removeFromCart(id) {
+        if (cart[id]) {
+            cart[id].qty--;
+            if (cart[id].qty <= 0) delete cart[id];
+        }
+        updateCart();
+    }
+
+    function updateCart() {
+        const totalItems = Object.values(cart).reduce((s, i) => s + i.qty, 0);
+        const countEl = document.getElementById('cartCount');
+        countEl.textContent = totalItems;
+        countEl.style.display = totalItems > 0 ? 'flex' : 'none';
+        const total = Object.values(cart).reduce((s, i) => s + (i.price * i.qty), 0);
+        document.getElementById('cartTotal').textContent = `€ ${total.toFixed(2)}`;
+        const cartDiv = document.getElementById('cartItems');
+        if (Object.keys(cart).length === 0) {
+            cartDiv.innerHTML = '<div class="empty-cart"><span class="big-emoji">🛒</span>Seu carrinho está vazio</div>';
+            return;
+        }
+        cartDiv.innerHTML = Object.values(cart).map(item => `
+            <div class="cart-item">
+                <span class="name">${item.emoji} ${item.name}</span>
+                <div class="qty">
+                    <button onclick="removeFromCart(${item.id})">−</button>
+                    <span>${item.qty}</span>
+                    <button onclick="addToCart(${item.id})">+</button>
+                </div>
+                <span class="item-price">€${(item.price * item.qty).toFixed(2)}</span>
+            </div>
+        `).join('');
+    }
+
+    function openCart() { document.getElementById('cartModal').classList.add('active'); updateCart(); }
+    function closeCart() { document.getElementById('cartModal').classList.remove('active'); }
+    function closePayment() { document.getElementById('paymentModal').classList.remove('active'); }
+
+    function openPayment() {
+        if (Object.keys(cart).length === 0) { showToast('Carrinho vazio!'); return; }
+        document.getElementById('cartModal').classList.remove('active');
+        const total = Object.values(cart).reduce((s, i) => s + (i.price * i.qty), 0);
+        const pixCode = '00020126580014BR.GOV.BCB.PIX0136mydrugs@fast.io5204000053039865802BR5925MyDrugs Fast6009Sao Paulo62070503***6304' + Math.random().toString(36).substring(2,8).toUpperCase();
+        document.getElementById('paymentContent').innerHTML = `
+            <h2>💳 Pagamento</h2>
+            <p style="color:#888;font-size:0.85rem;margin-bottom:14px;">Total: <strong style="color:#00ffc8">€ ${total.toFixed(2)}</strong></p>
+            <div class="methods">
+                <button onclick="selectPayment('pix')" id="payPix" style="border-color:rgba(0,255,200,0.3);color:#00ffc8;">🇧🇷 Pix</button>
+                <button onclick="selectPayment('btc')" id="payBtc">₿ Bitcoin</button>
+                <button onclick="selectPayment('eth')" id="payEth">◆ Ethereum</button>
+                <button onclick="selectPayment('monero')" id="payMonero">● Monero</button>
+            </div>
+            <div id="paymentDetail"></div>
+            <button class="checkout-btn" onclick="confirmPayment()" style="margin-top:10px;">✓ CONFIRMAR PAGAMENTO</button>
+        `;
+        document.getElementById('paymentModal').classList.add('active');
+        selectPayment('pix');
+    }
+
+    function selectPayment(method) {
+        document.querySelectorAll('.methods button').forEach(b => { b.style.borderColor = 'rgba(255,255,255,0.07)'; b.style.color = '#ccc'; });
+        const btn = document.getElementById({ pix: 'payPix', btc: 'payBtc', eth: 'payEth', monero: 'payMonero' }[method]);
+        if (btn) { btn.style.borderColor = 'rgba(0,255,200,0.3)'; btn.style.color = '#00ffc8'; }
+        const total = Object.values(cart).reduce((s, i) => s + (i.price * i.qty), 0);
+        const details = {
+            pix: `<div class="pix-display">
+                    <div style="font-size:2rem;margin-bottom:8px;">📱</div>
+                    <div style="font-size:0.8rem;color:#888;">Pix Copia e Cola</div>
+                    <div class="code">${'00020126580014BR.GOV.BCB.PIX0136mydrugs@fast.io5204000053039865802BR5925MyDrugs Fast6009Sao Paulo62070503***6304' + Math.random().toString(36).substring(2,8).toUpperCase()}</div>
+                    <div style="margin-top:10px;font-size:0.7rem;color:#555;">Ou pague com QR Code — € ${total.toFixed(2)}</div>
+                 </div>`,
+            btc: `<div class="pix-display">
+                    <div style="font-size:2rem;margin-bottom:8px;">₿</div>
+                    <div class="code">bc1q4myvrx7y3zkj9w2x0e8t5f6g7h8j9k0l1m2n3</div>
+                    <div style="margin-top:10px;font-size:0.7rem;color:#555;">Valor: ${(total / 82000).toFixed(6)} BTC • Confirmações: 2</div>
+                 </div>`,
+            eth: `<div class="pix-display">
+                    <div style="font-size:2rem;margin-bottom:8px;">◆</div>
+                    <div class="code">0x3f2A1b4C5d6E7f8G9h0Ij1K2l3M4n5O6p7Q8r9S</div>
+                    <div style="margin-top:10px;font-size:0.7rem;color:#555;">Valor: ${(total / 2800).toFixed(4)} ETH • Rede: ERC-20</div>
+                 </div>`,
+            monero: `<div class="pix-display">
+                    <div style="font-size:2rem;margin-bottom:8px;">●</div>
+                    <div class="code">4A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5Z6A7B8C9D0E1F2G3H4I5J6K7L8M9N0O1P2Q3R4S5T6U7V8W9X0Y1Z2A3B4C5D6E7F8G9H0I1J2K3L4M5N6O7P8Q9R0S1T2U3V4W5X6Y7Z8A9B0C1D2E3F4G5H6I7J8K9L0M1N2O3P4Q5R6S7T8U9V0W1X2Y3Z4A5B6C7D8E9F0G1H2I3J4K5L6M7N8O9P0Q</div>
+                    <div style="margin-top:10px;font-size:0.7rem;color:#555;">Valor: ${(total / 210).toFixed(4)} XMR</div>
+                 </div>`
+        };
+        document.getElementById('paymentDetail').innerHTML = details[method] || '';
+    }
+
+    function confirmPayment() {
+        const total = Object.values(cart).reduce((s, i) => s + (i.price * i.qty), 0);
+        document.getElementById('paymentContent').innerHTML = `
+            <div class="success">
+                <span class="big">✅</span>
+                <h3>Pagamento Confirmado!</h3>
+                <p>Pedido #${Math.random().toString(36).substring(2,8).toUpperCase()}</p>
+                <p style="margin-top:12px;">Total: € ${total.toFixed(2)}</p>
+                <p style="font-size:0.7rem;color:#555;margin-top:16px;">O link de entrega será enviado via Signal • 🕒 24h</p>
+                <button class="checkout-btn" onclick="closePayment(); cart={}; updateCart();" style="margin-top:18px;">✓ VOLTAR</button>
+            </div>
+        `;
+        showToast(`✅ Pedido confirmado! € ${total.toFixed(2)}`);
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._timeout);
+        t._timeout = setTimeout(() => t.classList.remove('show'), 3200);
+    }
+
+    document.getElementById('cartModal').addEventListener('click', function(e) { if (e.target === this) closeCart(); });
+    document.getElementById('paymentModal').addEventListener('click', function(e) { if (e.target === this) closePayment(); });
+
+    renderProducts('all');
+</script>
+</body>
+</html>
